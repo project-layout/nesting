@@ -6,7 +6,7 @@
 #include "GraphData.h"
 
 
-struct LayoutResult
+struct NestingResult
 {
     int board;
     Point pos;
@@ -19,7 +19,7 @@ public:
     ILayouter();
     virtual ~ILayouter();
 
-    virtual void Solve() = 0;
+    virtual bool Solve() = 0;
 
 protected:
 private:

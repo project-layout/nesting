@@ -21,6 +21,5 @@ int main()
     }
     else
         printf("Failed to read graph data.\n");
-    TestGetCircleCenter();
     return 0;
 }

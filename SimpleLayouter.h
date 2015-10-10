@@ -7,10 +7,10 @@
 class SimpleLayouter : public ILayouter
 {
 public:
-    SimpleLayouter(const std::vector<GraphInfo> &graphSet, Point boardSize, std::vector<LayoutResult> &result, double precision);
+    SimpleLayouter(const std::vector<GraphInfo> &graphSet, Point boardSize, std::vector<NestingResult> &result, double precision);
     virtual ~SimpleLayouter();
 
-    void Solve();
+    bool Solve();
 
 protected:
 private:
@@ -18,16 +18,33 @@ private:
     void EnclosureRectForLine(const Line *line, const Point *p1, const Point *p2, Rect *rect);
     void EnclosureRectForArc(const Line *line, const Point *p1, const Point *p2, Rect *rect);
 
-    void PlaceOnBoard();
+    void Nest();
+
+    struct NestingUnit  // Used for storing nesting information
+    {
+        int idx;
+        const GraphInfo *graphInfo;
+        Rect enclosureRect;
+    };
+
+    static bool CompareNestingUnit(const NestingUnit &u1, const NestingUnit &u2);
+
+    struct LayoutColumn  // Column information used during nesting
+    {
+        double left;
+        double right;
+        double height;
+    };
+
+    void InitLayoutColumnList(std::list<LayoutColumn> &colList);
 
 private:
-    static const double EPS = 1e-10;
     const std::vector<GraphInfo> &graphSet;
     Point boardSize;
     double precision;
 
-    std::vector<Rect> enclosureRect;
-    std::vector<LayoutResult> &result;
+    std::vector<NestingUnit> unitSet;
+    std::vector<NestingResult> &result;
 };
 
 #endif // SIMPLELAYOUTER_H

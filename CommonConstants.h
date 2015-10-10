@@ -1,0 +1,6 @@
+#ifndef COMMONCONSTANTS_H
+#define COMMONCONSTANTS_H
+
+#define EPS (1e-10)
+
+#endif // COMMONCONSTANTS_H

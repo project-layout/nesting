@@ -22,7 +22,6 @@ int Graph::AddOutline(GraphOutline *outline)
 
 void Graph::Print()
 {
-    printf("Graph id: %d\n", id);
     printf("Graph name: %s\n", name.c_str());
     printf("The number of outlines: %d\n", outlineSet.size());
     for(int i = 0; i < (int)outlineSet.size(); i++)

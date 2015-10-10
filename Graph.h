@@ -22,7 +22,6 @@ public:
 
 protected:
 private:
-    int id;
     std::string name;
     std::vector<GraphOutline *> outlineSet;
 };
