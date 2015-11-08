@@ -45,69 +45,61 @@ bool SimpleLayouter::Solve()
 
 void SimpleLayouter::EnclosureRect(const Graph *graph, Rect *rect)
 {
-    int i, j;
-    GraphOutline *outline;
+    int i;
     Rect lineRect;
     rect->ur.x = rect->ur.y = -(rect->bl.x = rect->bl.y = DBL_MAX);
-    for(i = 0; i < graph->GetOutlineNum(); i++)
+    for(i = 0; i < graph->GetLineNum(); i++)
     {
-        outline = graph->GetOutline(i);
-        if(outline == NULL)
+        const Line *line = graph->GetLine(i);
+        switch(line->type)
         {
-            printf("Error: outline is null\n"); // should not be here
-            continue;
+        case LINE:
+            EnclosureRectForLine(line, &lineRect);
+            break;
+        case ARC:
+            EnclosureRectForArc(line, &lineRect);
+            break;
+        case CIRCLE:
+            EnclosureRectForCircle(line, &lineRect);
+            break;
+        default:
+            break;
         }
-        for(j = 0; j < outline->GetPointNum(); j++)
-        {
-            Point *point1 = outline->GetPoint(j);
-            Point *point2 = outline->GetPoint((j+1)%outline->GetPointNum());
-            Line *line = outline->GetLine(j);
-            switch(line->type)
-            {
-            case LINE:
-                EnclosureRectForLine(line, point1, point2, &lineRect);
-                break;
-            case ARC:
-                EnclosureRectForArc(line, point1, point2, &lineRect);
-                break;
-            case CIRCLE:
-                EnclosureRectForCircle(line, point1, &lineRect);
-                break;
-            default:
-                break;
-            }
-            if(lineRect.bl.x < rect->bl.x)
-                rect->bl.x = lineRect.bl.x;
-            if(lineRect.bl.y < rect->bl.y)
-                rect->bl.y = lineRect.bl.y;
-            if(lineRect.ur.x > rect->ur.x)
-                rect->ur.x = lineRect.ur.x;
-            if(lineRect.ur.y > rect->ur.y)
-                rect->ur.y = lineRect.ur.y;
-        }
+        if(lineRect.bl.x < rect->bl.x)
+            rect->bl.x = lineRect.bl.x;
+        if(lineRect.bl.y < rect->bl.y)
+            rect->bl.y = lineRect.bl.y;
+        if(lineRect.ur.x > rect->ur.x)
+            rect->ur.x = lineRect.ur.x;
+        if(lineRect.ur.y > rect->ur.y)
+            rect->ur.y = lineRect.ur.y;
     }
 }
 
-void SimpleLayouter::EnclosureRectForLine(const Line *line, const Point *p1, const Point *p2, Rect *rect)
+void SimpleLayouter::EnclosureRectForLine(const Line *line, Rect *rect)
 {
-    double x1 = p1->x, x2 = p2->x, y1 = p1->y, y2 = p2->y;
+    const Point &p1 = line->param.lineParam.ep1;
+    const Point &p2 = line->param.lineParam.ep2;
+    double x1 = p1.x, x2 = p2.x, y1 = p1.y, y2 = p2.y;
     rect->bl.x = x1 < x2 ? x1 : x2;
     rect->bl.y = y1 < y2 ? y1 : y2;
     rect->ur.x = x1 > x2 ? x1 : x2;
     rect->ur.y = y1 > y2 ? y1 : y2;
 }
 
-void SimpleLayouter::EnclosureRectForArc(const Line *line, const Point *p1, const Point *p2, Rect *rect)
+void SimpleLayouter::EnclosureRectForArc(const Line *line, Rect *rect)
 {
-    double x1 = p1->x, x2 = p2->x, y1 = p1->y, y2 = p2->y;
+    const Point &p1 = line->param.arcParam.ep1;
+    const Point &p2 = line->param.arcParam.ep2;
+    double x1 = p1.x, x2 = p2.x, y1 = p1.y, y2 = p2.y;
     double radian = line->param.arcParam.radian;
     double chordLen = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
     double radius = chordLen/2/sin(radian/2);
     int zDir = line->param.arcParam.zDir;
-    Point pc = GetCircleCenter(*p1, *p2, radian, zDir);
+    Point pc = GetCircleCenter(p1, p2, radian, zDir);
 
-    double angle1 = atan2(p1->y-pc.y, p1->x-pc.x);
-    double angle2 = atan2(p2->y-pc.y, p2->x-pc.x);
+    double angle1 = atan2(p1.y-pc.y, p1.x-pc.x);
+    double angle2 = atan2(p2.y-pc.y, p2.x-pc.x);
     double angle, x, y;
     rect->ur.x = rect->ur.y = -(rect->bl.x = rect->bl.y = DBL_MAX);
     for(angle = angle1; angle < angle2+EPS; angle += precision)
@@ -125,12 +117,13 @@ void SimpleLayouter::EnclosureRectForArc(const Line *line, const Point *p1, cons
     }
 }
 
-void SimpleLayouter::EnclosureRectForCircle(const Line *line, const Point *center, Rect *rect)
+void SimpleLayouter::EnclosureRectForCircle(const Line *line, Rect *rect)
 {
-    rect->ur.x = center->x + line->param.circleParam.radius;
-    rect->ur.y = center->y + line->param.circleParam.radius;
-    rect->bl.x = center->x - line->param.circleParam.radius;
-    rect->bl.y = center->y - line->param.circleParam.radius;
+    const Point &center = line->param.circleParam.center;
+    rect->ur.x = center.x + line->param.circleParam.radius;
+    rect->ur.y = center.y + line->param.circleParam.radius;
+    rect->bl.x = center.x - line->param.circleParam.radius;
+    rect->bl.y = center.y - line->param.circleParam.radius;
 }
 
 void SimpleLayouter::Nest()

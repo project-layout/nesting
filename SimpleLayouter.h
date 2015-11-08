@@ -15,9 +15,9 @@ public:
 protected:
 private:
     void EnclosureRect(const Graph *graph, Rect *rect);
-    void EnclosureRectForLine(const Line *line, const Point *p1, const Point *p2, Rect *rect);
-    void EnclosureRectForArc(const Line *line, const Point *p1, const Point *p2, Rect *rect);
-    void EnclosureRectForCircle(const Line *line, const Point *center, Rect *rect);
+    void EnclosureRectForLine(const Line *line, Rect *rect);
+    void EnclosureRectForArc(const Line *line, Rect *rect);
+    void EnclosureRectForCircle(const Line *line, Rect *rect);
 
     void Nest();
 

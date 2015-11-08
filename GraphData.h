@@ -24,11 +24,12 @@ struct Rect
 
 struct LineParam
 {
-    // empty
+    Point ep1, ep2;
 };
 
 struct ArcParam
 {
+    Point ep1, ep2;
     double radian;
     int zDir;   // right-hand coordinate system
 };

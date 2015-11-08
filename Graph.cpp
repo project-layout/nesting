@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "Graph.h"
+#include "Utils.h"
 
 Graph::Graph()
 {
@@ -9,24 +10,46 @@ Graph::Graph()
 
 Graph::~Graph()
 {
-    for(int i = 0; i < (int)outlineSet.size(); i++)
-        if(outlineSet[i])
-            delete outlineSet[i];
 }
 
-int Graph::AddOutline(GraphOutline *outline)
+int Graph::AddLine(const Line &line)
 {
-    outlineSet.push_back(outline);
-    return outlineSet.size()-1;
+    lineSet.push_back(line);
+    return lineSet.size()-1;
 }
 
 void Graph::Print()
 {
     printf("Graph name: %s\n", name.c_str());
-    printf("The number of outlines: %d\n", outlineSet.size());
-    for(int i = 0; i < (int)outlineSet.size(); i++)
+    printf("The number of lines: %d\n", lineSet.size());
+    for(int i = 0; i < (int)lineSet.size(); i++)
     {
-        printf("Outline %d\n", i);
-        outlineSet[i]->Print();
+        printf("Line %d: %s\n", i, GetLineNameStr(lineSet[i]));
+        switch(lineSet[i].type)
+        {
+        case LINE:
+            printf("  (%.4lf,%.4lf)->(%.4lf,%.4lf)\n",
+                   lineSet[i].param.lineParam.ep1.x,
+                   lineSet[i].param.lineParam.ep1.y,
+                   lineSet[i].param.lineParam.ep2.x,
+                   lineSet[i].param.lineParam.ep2.y);
+            break;
+        case ARC:
+            printf("  (%.4lf,%.4lf)->(%.4lf,%.4lf)",
+                   lineSet[i].param.arcParam.ep1.x,
+                   lineSet[i].param.arcParam.ep1.y,
+                   lineSet[i].param.arcParam.ep2.x,
+                   lineSet[i].param.arcParam.ep2.y);
+            printf(" radian=%lf dir=%d\n", lineSet[i].param.arcParam.radian, lineSet[i].param.arcParam.zDir);
+            break;
+        case CIRCLE:
+            printf("  center: (%.4lf, %.4lf), radius: %.4lf\n",
+                   lineSet[i].param.circleParam.center.x,
+                   lineSet[i].param.circleParam.center.y,
+                   lineSet[i].param.circleParam.radius);
+            break;
+        default:
+            printf("\n");
+        }
     }
 }

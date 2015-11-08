@@ -48,17 +48,19 @@ bool PlainTextReader::ReadGraph()
 {
     int i;
     bool suc;
-    char line[INPUT_LINE_SIZE]; // Line will be truncated if its length >= INPUT_LINE_SIZE.
+    char input_line[INPUT_LINE_SIZE]; // Line will be truncated if its length >= INPUT_LINE_SIZE.
     char name[INPUT_LINE_SIZE];
     char typeStr[INPUT_LINE_SIZE];
     GraphInfo graphInfo;
+    Point point;
+    std::vector<Point> pointSet;
 
     while(!fin.eof())
     {
-        ReadInputLine(line);
-        if(!IgnoredLine(line, INPUT_LINE_SIZE))
+        ReadInputLine(input_line);
+        if(!IgnoredLine(input_line, INPUT_LINE_SIZE))
         {
-            if(sscanf(line, "%s%d", name, &graphInfo.num) < 2)
+            if(sscanf(input_line, "%s%d", name, &graphInfo.num) < 2)
                 return false;
             break;
         }
@@ -66,7 +68,6 @@ bool PlainTextReader::ReadGraph()
 
     graphInfo.graph = new Graph;
     graphInfo.graph->SetName(name);
-    GraphOutline *outline;
 
     suc = false;
     while(!fin.eof())   // For each graph outline
@@ -74,71 +75,61 @@ bool PlainTextReader::ReadGraph()
         int pointNum = 0;
         while(!fin.eof())   // Read the number of points
         {
-            ReadInputLine(line);
-            if(strcmp(line, "END") == 0)
+            ReadInputLine(input_line);
+            if(strcmp(input_line, "END") == 0)
             {
                 suc = true;
                 break;
             }
-            if(sscanf(line, "%d", &pointNum) >= 1)
+            if(sscanf(input_line, "%d", &pointNum) >= 1)
                 break;
         }
         if(suc)
             break;
 
-        outline = new GraphOutline;
-
         i = 0;
-        double x, y;
+        pointSet.clear();
         while(!fin.eof() && i < pointNum)   // Read each point
         {
-            ReadInputLine(line);
-            if(sscanf(line, "%lf%lf", &x, &y) < 2)
+            ReadInputLine(input_line);
+            if(sscanf(input_line, "%lf%lf", &point.x, &point.y) < 2)
                 continue;
-            outline->AddPoint(x, y);
+            pointSet.push_back(point);
             ++i;
         }
 
-        LineType type;
-        LineParamUnion param;
+        Line line;
         i = 0;
         while(!fin.eof() && i < pointNum)   // Read each line
         {
-            ReadInputLine(line);
-            if(IgnoredLine(line, INPUT_LINE_SIZE))
+            ReadInputLine(input_line);
+            if(IgnoredLine(input_line, INPUT_LINE_SIZE))
                 continue;
-            if(sscanf(line, "%s", typeStr) < 1)
+            if(sscanf(input_line, "%s", typeStr) < 1)
                 continue;
-            type = GetLineType(typeStr);
-            switch(type)
+            line.type = GetLineType(typeStr);
+            switch(line.type)
             {
             case LINE:
-                memset(&param, 0, sizeof(param));
+                line.param.lineParam.ep1 = pointSet[i];
+                line.param.lineParam.ep2 = pointSet[(i+1)%pointNum];
                 break;
             case ARC:
-                if(sscanf(line, "%*s%lf%d", &param.arcParam.radian, &param.arcParam.zDir) < 2)
+                line.param.arcParam.ep1 = pointSet[i];
+                line.param.arcParam.ep2 = pointSet[(i+1)%pointNum];
+                if(sscanf(input_line, "%*s%lf%d", &line.param.arcParam.radian, &line.param.arcParam.zDir) < 2)
                     continue;
                 break;
             case CIRCLE:
-                param.circleParam.center = *(outline->GetPoint(i));
-                if(sscanf(line, "%*s%lf", &param.circleParam.radius) < 1)
+                line.param.circleParam.center = pointSet[i];
+                if(sscanf(input_line, "%*s%lf", &line.param.circleParam.radius) < 1)
                     continue;
                 break;
             default:
                 break;
             }
-            outline->AddLine(type, param);
+            graphInfo.graph->AddLine(line);
             ++i;
-        }
-
-        if(i == pointNum)
-        {
-            graphInfo.graph->AddOutline(outline);
-        }
-        else
-        {
-            delete outline;
-            break;
         }
     }
 

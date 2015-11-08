@@ -1,19 +1,32 @@
 #ifndef DXFREADER_H
 #define DXFREADER_H
 
+#include <fstream>
+
 #include "IInputReader.h"
+#include "GraphData.h"
 
 
-class DXFReader : public IInputReader
+class DxfReader : public IInputReader
 {
+private:
+
 public:
-    DXFReader(const char filename[], std::vector<GraphInfo> &graphSet);
-    virtual ~DXFReader();
+    DxfReader(const char filename[], std::vector<GraphInfo> &graphSet);
+    virtual ~DxfReader();
 
     bool ReadData();
 
 protected:
+
 private:
+    bool ConstructGraph(const std::vector<Line> &lineSet);
+
+private:
+    std::string filename;
+    std::ifstream fin;
+    std::vector<GraphInfo> &graphSet;
+
 };
 
 #endif // DXFREADER_H

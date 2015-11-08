@@ -14,6 +14,7 @@ int main()
         printf("The number of different graphs: %d\n", graphSet.size());
         for(int i = 0; i < (int)graphSet.size(); i++)
         {
+            printf("==========\n");
             printf("Graph type %d:\n", i+1);
             printf("The number of graphs for this type: %d\n", graphSet[i].num);
             graphSet[i].graph->Print();
