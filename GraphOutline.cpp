@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "GraphOutline.h"
+#include "Utils.h"
 
 GraphOutline::GraphOutline()
 {
@@ -40,7 +41,7 @@ void GraphOutline::Print()
     }
     for(i = 0; i < (int)lineSet.size(); i++)
     {
-        printf("  Line %d->%d: %s ", i, (i+1)%lineSet.size(), lineSet[i].GetLineNameStr());
+        printf("  Line %d->%d: %s ", i, (i+1)%lineSet.size(), GetLineNameStr(lineSet[i]));
         switch(lineSet[i].type)
         {
         case LINE:

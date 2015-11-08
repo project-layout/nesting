@@ -21,4 +21,6 @@ inline bool FloatGreater(double x, double y, double precision)
     return x - y >= precision;
 }
 
+const char *GetLineNameStr(const Line &line);
+
 #endif // UTILS_H

@@ -59,3 +59,18 @@ Point GetCircleCenter(const Point &p1, const Point &p2, double radian, int zDir)
     cc.y = y1-radius*sin(theta);
     return cc;
 }
+
+const char *GetLineNameStr(const Line &line)
+{
+    switch(line.type)
+    {
+    case LINE:
+        return "LINE";
+    case ARC:
+        return "ARC";
+    case CIRCLE:
+        return "CIRCLE";
+    default:
+        return "UNKNOWN";
+    }
+}

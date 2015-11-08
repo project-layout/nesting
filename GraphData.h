@@ -7,7 +7,8 @@
 enum LineType
 {
     LINE,
-    ARC
+    ARC,
+    CIRCLE
 };
 
 struct Point
@@ -32,29 +33,23 @@ struct ArcParam
     int zDir;   // right-hand coordinate system
 };
 
+struct CircleParam
+{
+    Point center;
+    double radius;
+};
+
 union LineParamUnion
 {
     LineParam lineParam;
     ArcParam arcParam;
+    CircleParam circleParam;
 };
 
 struct Line
 {
     LineType type;
     LineParamUnion param;
-
-    const char *GetLineNameStr()
-    {
-        switch(type)
-        {
-        case LINE:
-            return "LINE";
-        case ARC:
-            return "ARC";
-        default:
-            return "UNKNOWN";
-        }
-    }
 };
 
 class Graph;

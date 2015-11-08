@@ -70,6 +70,11 @@ void SimpleLayouter::EnclosureRect(const Graph *graph, Rect *rect)
             case ARC:
                 EnclosureRectForArc(line, point1, point2, &lineRect);
                 break;
+            case CIRCLE:
+                EnclosureRectForCircle(line, point1, &lineRect);
+                break;
+            default:
+                break;
             }
             if(lineRect.bl.x < rect->bl.x)
                 rect->bl.x = lineRect.bl.x;
@@ -118,6 +123,14 @@ void SimpleLayouter::EnclosureRectForArc(const Line *line, const Point *p1, cons
         if(y < rect->bl.y)
             rect->bl.y = y;
     }
+}
+
+void SimpleLayouter::EnclosureRectForCircle(const Line *line, const Point *center, Rect *rect)
+{
+    rect->ur.x = center->x + line->param.circleParam.radius;
+    rect->ur.y = center->y + line->param.circleParam.radius;
+    rect->bl.x = center->x - line->param.circleParam.radius;
+    rect->bl.y = center->y - line->param.circleParam.radius;
 }
 
 void SimpleLayouter::Nest()

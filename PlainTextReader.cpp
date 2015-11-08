@@ -116,10 +116,13 @@ bool PlainTextReader::ReadGraph()
                 memset(&param, 0, sizeof(param));
                 break;
             case ARC:
-                int zDir;
-                if(sscanf(line, "%*s%lf%d", &param.arcParam.radian, &zDir) < 2)
+                if(sscanf(line, "%*s%lf%d", &param.arcParam.radian, &param.arcParam.zDir) < 2)
                     continue;
-                param.arcParam.zDir = zDir;
+                break;
+            case CIRCLE:
+                param.circleParam.center = *(outline->GetPoint(i));
+                if(sscanf(line, "%*s%lf", &param.circleParam.radius) < 1)
+                    continue;
                 break;
             default:
                 break;
@@ -157,6 +160,8 @@ LineType PlainTextReader::GetLineType(char typeStr[])
         return LINE;
     if(strcmp(typeStr, "ARC") == 0)
         return ARC;
+    if(strcmp(typeStr, "CIRCLE") == 0)
+        return CIRCLE;
     return LINE;    // default is straight line
 }
 
