@@ -20,7 +20,9 @@ public:
 protected:
 
 private:
-    bool ConstructGraph(const std::vector<Line> &lineSet);
+    Line ParseDxfLine(char *code, char *value);
+    Line ParseDxfCircle(char *code, char *value);
+    Line ParseDxfArc(char *code, char *value);
 
 private:
     std::string filename;

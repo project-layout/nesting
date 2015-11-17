@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <string>
+
 #include "GraphData.h"
 
 
@@ -22,5 +24,12 @@ inline bool FloatGreater(double x, double y, double precision)
 }
 
 const char *GetLineNameStr(const Line &line);
+
+std::string &LTrim(std::string &str);
+std::string &RTrim(std::string &str);
+std::string &Trim(std::string &str);
+char *LTrim(char *str);
+char *RTrim(char *str);
+char *Trim(char *str);
 
 #endif // UTILS_H

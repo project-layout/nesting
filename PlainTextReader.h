@@ -20,7 +20,7 @@ protected:
 private:
     bool ReadGraph();
     LineType GetLineType(char typeStr[]);
-    void ReadInputLine(char line[]);
+    void ReadInputLine(char line[], int len);
     bool IgnoredLine(char line[], int len);
 
 private:

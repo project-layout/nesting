@@ -57,7 +57,7 @@ bool PlainTextReader::ReadGraph()
 
     while(!fin.eof())
     {
-        ReadInputLine(input_line);
+        ReadInputLine(input_line, INPUT_LINE_SIZE);
         if(!IgnoredLine(input_line, INPUT_LINE_SIZE))
         {
             if(sscanf(input_line, "%s%d", name, &graphInfo.num) < 2)
@@ -75,7 +75,7 @@ bool PlainTextReader::ReadGraph()
         int pointNum = 0;
         while(!fin.eof())   // Read the number of points
         {
-            ReadInputLine(input_line);
+            ReadInputLine(input_line, INPUT_LINE_SIZE);
             if(strcmp(input_line, "END") == 0)
             {
                 suc = true;
@@ -91,7 +91,7 @@ bool PlainTextReader::ReadGraph()
         pointSet.clear();
         while(!fin.eof() && i < pointNum)   // Read each point
         {
-            ReadInputLine(input_line);
+            ReadInputLine(input_line, INPUT_LINE_SIZE);
             if(sscanf(input_line, "%lf%lf", &point.x, &point.y) < 2)
                 continue;
             pointSet.push_back(point);
@@ -102,7 +102,7 @@ bool PlainTextReader::ReadGraph()
         i = 0;
         while(!fin.eof() && i < pointNum)   // Read each line
         {
-            ReadInputLine(input_line);
+            ReadInputLine(input_line, INPUT_LINE_SIZE);
             if(IgnoredLine(input_line, INPUT_LINE_SIZE))
                 continue;
             if(sscanf(input_line, "%s", typeStr) < 1)
@@ -156,9 +156,9 @@ LineType PlainTextReader::GetLineType(char typeStr[])
     return LINE;    // default is straight line
 }
 
-void PlainTextReader::ReadInputLine(char line[])
+void PlainTextReader::ReadInputLine(char line[], int len)
 {
-    fin.getline(line, INPUT_LINE_SIZE);
+    fin.getline(line, len);
     if(fin.fail())
     {
         if(!fin.eof())

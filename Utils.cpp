@@ -1,4 +1,8 @@
 #include <math.h>
+#include <ctype.h>
+#include <string.h>
+#include <algorithm>
+#include <functional>
 
 #include "Utils.h"
 
@@ -73,4 +77,53 @@ const char *GetLineNameStr(const Line &line)
     default:
         return "UNKNOWN";
     }
+}
+
+std::string &LTrim(std::string &str)
+{
+    std::string::iterator it = std::find_if(str.begin(), str.end(), std::not1(std::ptr_fun<int, int>(isspace)));
+    str.erase(str.begin(), it);
+    return str;
+}
+
+std::string &RTrim(std::string &str)
+{
+    std::string::reverse_iterator it = std::find_if(str.rbegin(), str.rend(), std::not1(std::ptr_fun<int, int>(isspace)));
+    str.erase(it.base(), str.end());
+    return str;
+}
+
+std::string &Trim(std::string &str)
+{
+    return LTrim(RTrim(str));
+}
+
+char *LTrim(char *str)
+{
+    int len = strlen(str);
+    char *p = std::find_if(&str[0], &str[len], std::not1(std::ptr_fun<int, int>(isspace))), *q = str;
+    if(p != q)
+    {
+        while(*p != '\0')
+            *q++ = *p++;
+        *q = '\0';
+    }
+    return str;
+}
+
+char *RTrim(char *str)
+{
+    int len = strlen(str);
+    int i = len-1;
+    while(i >= 0 && isspace(str[i]))
+    {
+        i--;
+    }
+    str[i+1] = '\0';
+    return str;
+}
+
+char *Trim(char *str)
+{
+    return LTrim(RTrim(str));
 }
