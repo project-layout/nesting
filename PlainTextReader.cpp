@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits>
+#include <math.h>
 
 #include "PlainTextReader.h"
+#include "Utils.h"
 
 #define INPUT_LINE_SIZE 1024
 
@@ -115,10 +117,22 @@ bool PlainTextReader::ReadGraph()
                 line.param.lineParam.ep2 = pointSet[(i+1)%pointNum];
                 break;
             case ARC:
-                line.param.arcParam.ep1 = pointSet[i];
-                line.param.arcParam.ep2 = pointSet[(i+1)%pointNum];
-                if(sscanf(input_line, "%*s%lf%d", &line.param.arcParam.radian, &line.param.arcParam.zDir) < 2)
-                    continue;
+                {
+                    double radian;
+                    int zDir;
+                    if(sscanf(input_line, "%*s%lf%d", &radian, &zDir) < 2)
+                        continue;
+                    line.param.arcParam.center = GetCircleCenter(pointSet[i], pointSet[(i+1)%pointNum], radian, zDir);
+
+                    const Point &p1 = pointSet[i];
+                    const Point &p2 = pointSet[(i+1)%pointNum];
+                    const Point &pc = line.param.arcParam.center;
+                    double x1 = p1.x, x2 = p2.x, y1 = p1.y, y2 = p2.y;
+                    double chordLen = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+                    line.param.arcParam.radius = chordLen/2/sin(radian/2);
+                    line.param.arcParam.startAng = atan2(p1.y-pc.y, p1.x-pc.x);
+                    line.param.arcParam.endAng = atan2(p2.y-pc.y, p2.x-pc.x);
+                }
                 break;
             case CIRCLE:
                 line.param.circleParam.center = pointSet[i];

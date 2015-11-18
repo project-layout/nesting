@@ -1,6 +1,8 @@
 #ifndef SIMPLELAYOUTER_H
 #define SIMPLELAYOUTER_H
 
+#include <list>
+
 #include "ILayouter.h"
 
 

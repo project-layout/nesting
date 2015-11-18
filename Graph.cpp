@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 #include "Graph.h"
 #include "Utils.h"
@@ -28,22 +29,27 @@ void Graph::Print()
         switch(lineSet[i].type)
         {
         case LINE:
-            printf("  (%.4lf,%.4lf)->(%.4lf,%.4lf)\n",
+            printf("  (%.4f,%.4f)->(%.4f,%.4f)\n",
                    lineSet[i].param.lineParam.ep1.x,
                    lineSet[i].param.lineParam.ep1.y,
                    lineSet[i].param.lineParam.ep2.x,
                    lineSet[i].param.lineParam.ep2.y);
             break;
         case ARC:
-            printf("  (%.4lf,%.4lf)->(%.4lf,%.4lf)",
-                   lineSet[i].param.arcParam.ep1.x,
-                   lineSet[i].param.arcParam.ep1.y,
-                   lineSet[i].param.arcParam.ep2.x,
-                   lineSet[i].param.arcParam.ep2.y);
-            printf(" radian=%lf dir=%d\n", lineSet[i].param.arcParam.radian, lineSet[i].param.arcParam.zDir);
+            printf("  (%.4f,%.4f)->(%.4f,%.4f)",
+                   lineSet[i].param.arcParam.center.x+lineSet[i].param.arcParam.radius*cos(lineSet[i].param.arcParam.startAng),
+                   lineSet[i].param.arcParam.center.y+lineSet[i].param.arcParam.radius*sin(lineSet[i].param.arcParam.startAng),
+                   lineSet[i].param.arcParam.center.x+lineSet[i].param.arcParam.radius*cos(lineSet[i].param.arcParam.endAng),
+                   lineSet[i].param.arcParam.center.y+lineSet[i].param.arcParam.radius*sin(lineSet[i].param.arcParam.endAng));
+            printf(" radius=%f center=(%f,%f) start_angle=%f end_angle=%f\n",
+                   lineSet[i].param.arcParam.radius,
+                   lineSet[i].param.arcParam.center.x,
+                   lineSet[i].param.arcParam.center.y,
+                   lineSet[i].param.arcParam.startAng,
+                   lineSet[i].param.arcParam.endAng);
             break;
         case CIRCLE:
-            printf("  center: (%.4lf, %.4lf), radius: %.4lf\n",
+            printf("  center: (%.4f, %.4f), radius: %.4f\n",
                    lineSet[i].param.circleParam.center.x,
                    lineSet[i].param.circleParam.center.y,
                    lineSet[i].param.circleParam.radius);

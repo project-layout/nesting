@@ -29,9 +29,9 @@ struct LineParam
 
 struct ArcParam
 {
-    Point ep1, ep2;
-    double radian;
-    int zDir;   // right-hand coordinate system
+    Point center;
+    double radius;
+    double startAng, endAng;
 };
 
 struct CircleParam

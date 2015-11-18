@@ -4,11 +4,13 @@
 #include "DxfReader.h"
 #include "Utils.h"
 
-#define INPUT_LINE_SIZE 100
+#define INPUT_LINE_SIZE 512
 
 #define DXF_LINE "LINE"
 #define DXF_ARC "ARC"
 #define DXF_CIRCLE "CIRCLE"
+#define DXF_EOF "EOF"
+
 #define DXF_ENTITY_TYPE 0
 #define DXF_COORD_X0 10
 #define DXF_COORD_Y0 20
@@ -35,7 +37,7 @@ DxfReader::~DxfReader()
 bool DxfReader::ReadData()
 {
     // XXX: Currently, only consider one graph in a dxf file.
-    std::vector<Line> lineSet;
+    Graph *graph;
     char code[INPUT_LINE_SIZE];
     char value[INPUT_LINE_SIZE];
 
@@ -46,6 +48,9 @@ bool DxfReader::ReadData()
         return false;
     }
 
+    graph = new Graph;
+    graph->SetName("DXF graph");    // TODO: name?
+
     fin.getline(code, INPUT_LINE_SIZE);
     fin.getline(value, INPUT_LINE_SIZE);
     Trim(value);
@@ -53,23 +58,36 @@ bool DxfReader::ReadData()
     {
         if(strcmp(value, DXF_LINE) == 0)
         {
-            lineSet.push_back(ParseDxfLine(code, value));
+            graph->AddLine(ParseDxfLine(code, value));
         }
         else if(strcmp(value, DXF_ARC) == 0)
         {
-            lineSet.push_back(ParseDxfArc(code, value));
+            graph->AddLine(ParseDxfArc(code, value));
         }
         else if(strcmp(value, DXF_CIRCLE) == 0)
         {
-            lineSet.push_back(ParseDxfCircle(code, value));
+            graph->AddLine(ParseDxfCircle(code, value));
+        }
+        else if(strcmp(value, DXF_EOF) == 0)
+        {
+            break;
         }
         else
         {
+            fin.getline(code, INPUT_LINE_SIZE);
+            fin.getline(value, INPUT_LINE_SIZE);
+            Trim(value);
             // Currently, we don't care about other contents.
         }
     }
 
     fin.close();
+
+    GraphInfo graphInfo;
+    graphInfo.graph = graph;
+    graphInfo.num = 1;  // TODO: How to determine the number?
+
+    graphSet.push_back(graphInfo);
 
     return true;
 }
@@ -103,6 +121,7 @@ Line DxfReader::ParseDxfLine(char *code, char *value)
         }
         else if(cv == DXF_ENTITY_TYPE)
         {
+            Trim(value);
             break;
         }
     }
@@ -135,6 +154,7 @@ Line DxfReader::ParseDxfCircle(char *code, char *value)
         }
         else if(cv == DXF_ENTITY_TYPE)
         {
+            Trim(value);
             break;
         }
     }
@@ -145,7 +165,6 @@ Line DxfReader::ParseDxfCircle(char *code, char *value)
 Line DxfReader::ParseDxfArc(char *code, char *value)
 {
     int cv;
-    double cx, cy, radius, ang1, ang2;
     Line line;
     line.type = ARC;
 
@@ -156,30 +175,30 @@ Line DxfReader::ParseDxfArc(char *code, char *value)
         cv = atoi(code);
         if(cv == DXF_COORD_X0)
         {
-            cx = atof(value);
+            line.param.arcParam.center.x = atof(value);
         }
         else if(cv == DXF_COORD_Y0)
         {
-            cy = atof(value);
+            line.param.arcParam.center.y = atof(value);
         }
         else if(cv == DXF_RADIUS)
         {
-            radius = atof(value);
+            line.param.arcParam.radius = atof(value);
         }
         else if(cv == DXF_START_ANGLE)
         {
-            ang1 = atof(value);
+            line.param.arcParam.startAng = atof(value);
         }
         else if(cv == DXF_END_ANGLE)
         {
-            ang2 = atof(value);
+            line.param.arcParam.endAng = atof(value);
         }
         else if(cv == DXF_ENTITY_TYPE)
         {
+            Trim(value);
             break;
         }
     }
-    // TODO: Convert these arguments of an arc to those used in SimpleLayouter.
 
     return line;
 }

@@ -89,23 +89,17 @@ void SimpleLayouter::EnclosureRectForLine(const Line *line, Rect *rect)
 
 void SimpleLayouter::EnclosureRectForArc(const Line *line, Rect *rect)
 {
-    const Point &p1 = line->param.arcParam.ep1;
-    const Point &p2 = line->param.arcParam.ep2;
-    double x1 = p1.x, x2 = p2.x, y1 = p1.y, y2 = p2.y;
-    double radian = line->param.arcParam.radian;
-    double chordLen = sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
-    double radius = chordLen/2/sin(radian/2);
-    int zDir = line->param.arcParam.zDir;
-    Point pc = GetCircleCenter(p1, p2, radian, zDir);
-
-    double angle1 = atan2(p1.y-pc.y, p1.x-pc.x);
-    double angle2 = atan2(p2.y-pc.y, p2.x-pc.x);
+    const Point &center = line->param.arcParam.center;
+    double radius = line->param.arcParam.radius;
+    double startAng = line->param.arcParam.startAng;
+    double endAng = line->param.arcParam.endAng;
     double angle, x, y;
+
     rect->ur.x = rect->ur.y = -(rect->bl.x = rect->bl.y = DBL_MAX);
-    for(angle = angle1; angle < angle2+EPS; angle += precision)
+    for(angle = startAng; angle < endAng+EPS; angle += precision)
     {
-        x = pc.x+radius*cos(angle);
-        y = pc.y+radius*sin(angle);
+        x = center.x+radius*cos(angle);
+        y = center.y+radius*sin(angle);
         if(x > rect->ur.x)
             rect->ur.x = x;
         if(x < rect->bl.x)
@@ -160,7 +154,7 @@ void SimpleLayouter::Nest()
             {
                 // Check if the current rectangle can be placed on the current board.
                 nextBoard = false;
-                while(FloatGreater(curY + height, it->height, EPS))    // Find a position high enough
+                while(FloatGreater(curY + height, boardSize.y - it->height, EPS))    // Find a position high enough
                 {
                     ++it;
                     curX = it->left;
@@ -216,12 +210,18 @@ void SimpleLayouter::Nest()
             {
                 it = colList.erase(it);
             }
+
             if(FloatLess(curX + width, it->right, EPS)) // shorter, insert a node
             {
                 col.left = curX;
                 col.right = curX + width;
                 col.height = curY + height;
-                it = colList.insert(it, col);
+                it2 = it = colList.insert(it, col);
+                ++it2;
+                if(colList.end() != it2)
+                {
+                    it2->left = it->right;
+                }
             }
             else
             {

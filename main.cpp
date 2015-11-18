@@ -1,15 +1,21 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "PlainTextReader.h"
+#include "DxfReader.h"
+#include "SimpleLayouter.h"
 #include "Utils.h"
 #include "unittest/UnitTest.h"
 
 int main()
 {
     std::vector<GraphInfo> graphSet;
-    IInputReader *inputReader = new PlainTextReader("test_input.txt", graphSet);
+    //IInputReader *inputReader = new PlainTextReader("test_input.txt", graphSet);
+    IInputReader *inputReader = new DxfReader("try2.dxf", graphSet);
+
     if(inputReader->ReadData())
     {
+        graphSet[0].num = 10;
         printf("Read graph data successfully.\n");
         printf("The number of different graphs: %d\n", graphSet.size());
         for(int i = 0; i < (int)graphSet.size(); i++)
@@ -21,6 +27,22 @@ int main()
         }
     }
     else
+    {
         printf("Failed to read graph data.\n");
+        return 0;
+    }
+
+    Point boardSize = { (double)3000, (double)200000 };
+    std::vector<NestingResult> result;
+    ILayouter *layouter = new SimpleLayouter(graphSet, boardSize, result, 0.01);
+    layouter->Solve();
+
+    printf("==========\n");
+    printf("Nesting result:\n");
+    for(int i = 0; i < result.size(); i++)
+    {
+        printf("Graph %d: (%d, %f, %f, %f)\n", i+1, result[i].board, result[i].pos.x, result[i].pos.y, result[i].angle);
+    }
+
     return 0;
 }
