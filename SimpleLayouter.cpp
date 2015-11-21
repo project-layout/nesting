@@ -32,7 +32,6 @@ bool SimpleLayouter::Solve()
     for(i = 0; i < (int)graphSet.size(); i++)
     {
         EnclosureRect(graphSet[i].graph, &rect);
-        unitSet[i].idx = i;
         unitSet[i].graphInfo = &graphSet[i];
         unitSet[i].enclosureRect = rect;
         if(rect.ur.y-rect.bl.y > boardSize.y || rect.ur.x-rect.bl.x > boardSize.x)  // This graph cannot be nested into the board.
@@ -199,6 +198,7 @@ void SimpleLayouter::Nest()
             }
 
             // Place it at the current position.
+            nr.graph = unitSet[i].graphInfo->graph;
             nr.board = curBoard;
             nr.pos.x = curX - rect.bl.x;
             nr.pos.y = curY - rect.bl.y;

@@ -3,6 +3,7 @@
 
 #include "PlainTextReader.h"
 #include "DxfReader.h"
+#include "ScrWriter.h"
 #include "SimpleLayouter.h"
 #include "Utils.h"
 #include "unittest/UnitTest.h"
@@ -39,10 +40,13 @@ int main()
 
     printf("==========\n");
     printf("Nesting result:\n");
-    for(int i = 0; i < result.size(); i++)
+    for(int i = 0; i < (int)result.size(); i++)
     {
         printf("Graph %d: (%d, %f, %f, %f)\n", i+1, result[i].board, result[i].pos.x, result[i].pos.y, result[i].angle);
     }
+
+    IOutputWriter *writer = new ScrWriter("output", result);
+    writer->OutputFile();
 
     return 0;
 }

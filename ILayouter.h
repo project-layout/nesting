@@ -6,13 +6,6 @@
 #include "GraphData.h"
 
 
-struct NestingResult
-{
-    int board;
-    Point pos;
-    double angle;
-};
-
 class ILayouter
 {
 public:

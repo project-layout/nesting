@@ -61,4 +61,12 @@ struct GraphInfo
     int num;
 };
 
+struct NestingResult
+{
+    int board;
+    Point pos;
+    double angle;
+    const Graph *graph;
+};
+
 #endif // GRAPHDATA_H

@@ -25,7 +25,6 @@ private:
 
     struct NestingUnit  // Used for storing nesting information
     {
-        int idx;
         const GraphInfo *graphInfo;
         Rect enclosureRect;
     };
