@@ -59,7 +59,10 @@ bool ScrWriter::OutputFile()
     }
 
     if(fout.is_open())
+    {
+        fout << "ZOOM E" << std::endl;
         fout.close();
+    }
     return true;
 }
 
