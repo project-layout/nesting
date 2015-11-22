@@ -10,6 +10,8 @@ ScrWriter::ScrWriter(const char outname[], std::vector<NestingResult> &result)
     : outname(outname)
     , result(result)
 {
+    fout.precision(3);
+    fout.setf(std::ios::fixed);
 }
 
 ScrWriter::~ScrWriter()
@@ -29,7 +31,7 @@ bool ScrWriter::OutputFile()
         {
             if(fout.is_open())
             {
-                fout << "ZOOM E" << std::endl;
+                fout << "ZOOM ALL" << std::endl;
                 fout.close();
             }
             curFileId++;
@@ -37,6 +39,7 @@ bool ScrWriter::OutputFile()
             ss >> strFileId;
             filename = outname + strFileId + POSTFIX;
             fout.open(filename);
+            fout << "LIMITS\n" << (double)0 << "," << (double)0 << "\n" << page.x << "," << page.y << "\n\n";
         }
 
         graph = result[i].graph;
@@ -49,6 +52,7 @@ bool ScrWriter::OutputFile()
                 OutputScrLine(*line, result[i].pos, result[i].angle);
                 break;
             case ARC:
+                OutputScrArc(*line, result[i].pos, result[i].angle);
                 break;
             case CIRCLE:
                 break;
@@ -60,37 +64,40 @@ bool ScrWriter::OutputFile()
 
     if(fout.is_open())
     {
-        fout << "ZOOM E" << std::endl;
+        fout << "ZOOM ALL" << std::endl;
         fout.close();
     }
     return true;
 }
 
-void ScrWriter::OutputScrLine(const Line &line, const Point &offset, double angle)
+void ScrWriter::OutputScrLine(const Line &line, const Point &offset, double rot)
 {
     double x, y;
-    fout << "LINE ";
+    fout << "LINE\n";
     x = line.param.lineParam.ep1.x + offset.x;
     y = line.param.lineParam.ep1.y + offset.y;
-    fout << x << " ," << y << " ,0.000000 ,";
+    fout << x << "," << y << "\n";
     x = line.param.lineParam.ep2.x + offset.x;
     y = line.param.lineParam.ep2.y + offset.y;
-    fout << x << " ," << y << " ,0.000000 " << std::endl;
+    fout << x << "," << y << "\n\n";
 }
 
 
-void ScrWriter::OutputScrArc(const Line &line, const Point &offset, double angle)
+void ScrWriter::OutputScrArc(const Line &line, const Point &offset, double rot)
 {
     double x, y;
     double radius = line.param.arcParam.radius;
     double startAng = line.param.arcParam.startAng;
     double endAng = line.param.arcParam.endAng;
 
-    fout << "ARC C ";
+    fout << "ARC\nC\n";
     x = line.param.arcParam.center.x + offset.x;
     y = line.param.arcParam.center.y + offset.y;
-    fout << x << " ," << y << " ,0.000000 ,";
+    fout << x << "," << y << "\n";
+    x = line.param.arcParam.center.x + radius * cos(endAng) + offset.x;
+    y = line.param.arcParam.center.y + radius * sin(endAng) + offset.y;
+    fout << x << "," << y << "\n";
     x = line.param.arcParam.center.x + radius * cos(startAng) + offset.x;
     y = line.param.arcParam.center.y + radius * sin(startAng) + offset.y;
-    fout << x << " ," << y << " A " << (endAng - startAng) << std::endl;
+    fout << x << "," << y << "\n\n";
 }

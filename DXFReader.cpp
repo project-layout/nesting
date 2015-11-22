@@ -187,11 +187,11 @@ Line DxfReader::ParseDxfArc(char *code, char *value)
         }
         else if(cv == DXF_START_ANGLE)
         {
-            line.param.arcParam.startAng = atof(value);
+            line.param.arcParam.startAng = atof(value)*PI/180;
         }
         else if(cv == DXF_END_ANGLE)
         {
-            line.param.arcParam.endAng = atof(value);
+            line.param.arcParam.endAng = atof(value)*PI/180;
         }
         else if(cv == DXF_ENTITY_TYPE)
         {

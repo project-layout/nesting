@@ -1,18 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 
 #include "PlainTextReader.h"
 #include "DxfReader.h"
 #include "ScrWriter.h"
 #include "SimpleLayouter.h"
 #include "Utils.h"
-#include "unittest/UnitTest.h"
 
-int main()
+int main(int argc, char **argv)
 {
     std::vector<GraphInfo> graphSet;
-    //IInputReader *inputReader = new PlainTextReader("test_input.txt", graphSet);
-    IInputReader *inputReader = new DxfReader("try2.dxf", graphSet);
+    std::string filename;
+    IInputReader *inputReader;
+
+    if(argc > 1)
+    {
+        filename = argv[1];
+        if(filename.rfind(".txt") == filename.length()-4)
+        {
+            inputReader = new PlainTextReader(filename.c_str(), graphSet);
+        }
+        else
+        {
+            inputReader = new DxfReader(filename.c_str(), graphSet);
+        }
+    }
+    else
+    {
+        inputReader = new DxfReader("fig3.dxf", graphSet);
+    }
 
     if(inputReader->ReadData())
     {
@@ -46,6 +63,7 @@ int main()
     }
 
     IOutputWriter *writer = new ScrWriter("output", result);
+    writer->SetPageSize(boardSize);
     writer->OutputFile();
 
     return 0;
