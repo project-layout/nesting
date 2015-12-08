@@ -31,7 +31,10 @@ bool SimpleLayouter::Solve()
     unitSet.resize(graphSet.size());
     for(i = 0; i < (int)graphSet.size(); i++)
     {
-        EnclosureRect(graphSet[i].graph, &rect);
+        if(graphSet[i].graph->GetType() == Graph::GENERAL)
+        {
+            EnclosureRect((GeneralGraph *)graphSet[i].graph, &rect);
+        }
         unitSet[i].graphInfo = &graphSet[i];
         unitSet[i].enclosureRect = rect;
         if(rect.ur.y-rect.bl.y > boardSize.y || rect.ur.x-rect.bl.x > boardSize.x)  // This graph cannot be nested into the board.
@@ -42,23 +45,23 @@ bool SimpleLayouter::Solve()
     return true;
 }
 
-void SimpleLayouter::EnclosureRect(const Graph *graph, Rect *rect)
+void SimpleLayouter::EnclosureRect(const GeneralGraph *graph, Rect *rect)
 {
     int i;
     Rect lineRect;
     rect->ur.x = rect->ur.y = -(rect->bl.x = rect->bl.y = DBL_MAX);
     for(i = 0; i < graph->GetLineNum(); i++)
     {
-        const Line *line = graph->GetLine(i);
+        const GeneralGraph::Line *line = graph->GetLine(i);
         switch(line->type)
         {
-        case LINE:
+        case GeneralGraph::LINE:
             EnclosureRectForLine(line, &lineRect);
             break;
-        case ARC:
+        case GeneralGraph::ARC:
             EnclosureRectForArc(line, &lineRect);
             break;
-        case CIRCLE:
+        case GeneralGraph::CIRCLE:
             EnclosureRectForCircle(line, &lineRect);
             break;
         default:
@@ -75,7 +78,7 @@ void SimpleLayouter::EnclosureRect(const Graph *graph, Rect *rect)
     }
 }
 
-void SimpleLayouter::EnclosureRectForLine(const Line *line, Rect *rect)
+void SimpleLayouter::EnclosureRectForLine(const GeneralGraph::Line *line, Rect *rect)
 {
     const Point &p1 = line->param.lineParam.ep1;
     const Point &p2 = line->param.lineParam.ep2;
@@ -86,7 +89,7 @@ void SimpleLayouter::EnclosureRectForLine(const Line *line, Rect *rect)
     rect->ur.y = y1 > y2 ? y1 : y2;
 }
 
-void SimpleLayouter::EnclosureRectForArc(const Line *line, Rect *rect)
+void SimpleLayouter::EnclosureRectForArc(const GeneralGraph::Line *line, Rect *rect)
 {
     const Point &center = line->param.arcParam.center;
     double radius = line->param.arcParam.radius;
@@ -110,7 +113,7 @@ void SimpleLayouter::EnclosureRectForArc(const Line *line, Rect *rect)
     }
 }
 
-void SimpleLayouter::EnclosureRectForCircle(const Line *line, Rect *rect)
+void SimpleLayouter::EnclosureRectForCircle(const GeneralGraph::Line *line, Rect *rect)
 {
     const Point &center = line->param.circleParam.center;
     rect->ur.x = center.x + line->param.circleParam.radius;

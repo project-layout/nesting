@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include "IInputReader.h"
-#include "GraphData.h"
+#include "GeneralGraph.h"
 
 
 class DxfReader : public IInputReader
@@ -20,9 +20,9 @@ public:
 protected:
 
 private:
-    Line ParseDxfLine(char *code, char *value);
-    Line ParseDxfCircle(char *code, char *value);
-    Line ParseDxfArc(char *code, char *value);
+    GeneralGraph::Line ParseDxfLine(char *code, char *value);
+    GeneralGraph::Line ParseDxfCircle(char *code, char *value);
+    GeneralGraph::Line ParseDxfArc(char *code, char *value);
 
 private:
     std::string filename;

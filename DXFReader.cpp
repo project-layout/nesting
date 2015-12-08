@@ -2,6 +2,8 @@
 #include <string.h>
 
 #include "DxfReader.h"
+#include "GeneralGraph.h"
+#include "CommonConstants.h"
 #include "Utils.h"
 
 #define INPUT_LINE_SIZE 512
@@ -37,7 +39,7 @@ DxfReader::~DxfReader()
 bool DxfReader::ReadData()
 {
     // XXX: Currently, only consider one graph in a dxf file.
-    Graph *graph;
+    GeneralGraph *graph;
     char code[INPUT_LINE_SIZE];
     char value[INPUT_LINE_SIZE];
 
@@ -48,7 +50,7 @@ bool DxfReader::ReadData()
         return false;
     }
 
-    graph = new Graph;
+    graph = new GeneralGraph;
     graph->SetName("DXF graph");    // TODO: name?
 
     fin.getline(code, INPUT_LINE_SIZE);
@@ -92,11 +94,11 @@ bool DxfReader::ReadData()
     return true;
 }
 
-Line DxfReader::ParseDxfLine(char *code, char *value)
+GeneralGraph::Line DxfReader::ParseDxfLine(char *code, char *value)
 {
     int cv;
-    Line line;
-    line.type = LINE;
+    GeneralGraph::Line line;
+    line.type = GeneralGraph::LINE;
 
     while(1)
     {
@@ -129,11 +131,11 @@ Line DxfReader::ParseDxfLine(char *code, char *value)
 	return line;
 }
 
-Line DxfReader::ParseDxfCircle(char *code, char *value)
+GeneralGraph::Line DxfReader::ParseDxfCircle(char *code, char *value)
 {
     int cv;
-    Line line;
-    line.type = CIRCLE;
+    GeneralGraph::Line line;
+    line.type = GeneralGraph::CIRCLE;
 
     while(1)
     {
@@ -162,11 +164,11 @@ Line DxfReader::ParseDxfCircle(char *code, char *value)
     return line;
 }
 
-Line DxfReader::ParseDxfArc(char *code, char *value)
+GeneralGraph::Line DxfReader::ParseDxfArc(char *code, char *value)
 {
     int cv;
-    Line line;
-    line.type = ARC;
+    GeneralGraph::Line line;
+    line.type = GeneralGraph::ARC;
 
     while(1)
     {

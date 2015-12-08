@@ -23,7 +23,7 @@ bool ScrWriter::OutputFile()
     int i, j, curFileId = -1;
     std::string strFileId, filename;
     std::stringstream ss;
-    const Graph *graph;
+    const GeneralGraph *graph;
 
     for(i = 0; i < (int)result.size(); i++)
     {
@@ -42,22 +42,25 @@ bool ScrWriter::OutputFile()
             fout << "LIMITS\n" << (double)0 << "," << (double)0 << "\n" << page.x << "," << page.y << "\n\n";
         }
 
-        graph = result[i].graph;
-        for(j = 0; j < graph->GetLineNum(); j++)
+        if(result[i].graph->GetType() == Graph::GENERAL)
         {
-            const Line *line = graph->GetLine(j);
-            switch(line->type)
+            graph = (GeneralGraph *)result[i].graph;
+            for(j = 0; j < graph->GetLineNum(); j++)
             {
-            case LINE:
-                OutputScrLine(*line, result[i].pos, result[i].angle);
-                break;
-            case ARC:
-                OutputScrArc(*line, result[i].pos, result[i].angle);
-                break;
-            case CIRCLE:
-                break;
-            default:
-                break;
+                const GeneralGraph::Line *line = graph->GetLine(j);
+                switch(line->type)
+                {
+                    case GeneralGraph::LINE:
+                        OutputScrLine(*line, result[i].pos, result[i].angle);
+                        break;
+                    case GeneralGraph::ARC:
+                        OutputScrArc(*line, result[i].pos, result[i].angle);
+                        break;
+                    case GeneralGraph::CIRCLE:
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }
@@ -70,7 +73,7 @@ bool ScrWriter::OutputFile()
     return true;
 }
 
-void ScrWriter::OutputScrLine(const Line &line, const Point &offset, double rot)
+void ScrWriter::OutputScrLine(const GeneralGraph::Line &line, const Point &offset, double rot)
 {
     double x, y;
     fout << "LINE\n";
@@ -83,7 +86,7 @@ void ScrWriter::OutputScrLine(const Line &line, const Point &offset, double rot)
 }
 
 
-void ScrWriter::OutputScrArc(const Line &line, const Point &offset, double rot)
+void ScrWriter::OutputScrArc(const GeneralGraph::Line &line, const Point &offset, double rot)
 {
     double x, y;
     double radius = line.param.arcParam.radius;
@@ -99,5 +102,5 @@ void ScrWriter::OutputScrArc(const Line &line, const Point &offset, double rot)
     fout << x << "," << y << "\n";
     x = line.param.arcParam.center.x + radius * cos(startAng) + offset.x;
     y = line.param.arcParam.center.y + radius * sin(startAng) + offset.y;
-    fout << x << "," << y << "\n\n";
+    fout << x << "," << y << "\n";
 }

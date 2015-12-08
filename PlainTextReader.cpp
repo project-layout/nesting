@@ -50,10 +50,11 @@ bool PlainTextReader::ReadGraph()
 {
     int i;
     bool suc;
-    char input_line[INPUT_LINE_SIZE]; // Line will be truncated if its length >= INPUT_LINE_SIZE.
+    char input_line[INPUT_LINE_SIZE]; // Input line will be truncated if its length >= INPUT_LINE_SIZE.
     char name[INPUT_LINE_SIZE];
     char typeStr[INPUT_LINE_SIZE];
     GraphInfo graphInfo;
+    GeneralGraph *graph;
     Point point;
     std::vector<Point> pointSet;
 
@@ -68,8 +69,8 @@ bool PlainTextReader::ReadGraph()
         }
     }
 
-    graphInfo.graph = new Graph;
-    graphInfo.graph->SetName(name);
+    graph = new GeneralGraph;
+    graph->SetName(name);
 
     suc = false;
     while(!fin.eof())   // For each graph outline
@@ -100,7 +101,7 @@ bool PlainTextReader::ReadGraph()
             ++i;
         }
 
-        Line line;
+        GeneralGraph::Line line;
         i = 0;
         while(!fin.eof() && i < pointNum)   // Read each line
         {
@@ -112,11 +113,11 @@ bool PlainTextReader::ReadGraph()
             line.type = GetLineType(typeStr);
             switch(line.type)
             {
-            case LINE:
+            case GeneralGraph::LINE:
                 line.param.lineParam.ep1 = pointSet[i];
                 line.param.lineParam.ep2 = pointSet[(i+1)%pointNum];
                 break;
-            case ARC:
+            case GeneralGraph::ARC:
                 {
                     double radian;
                     int zDir;
@@ -134,7 +135,7 @@ bool PlainTextReader::ReadGraph()
                     line.param.arcParam.endAng = atan2(p2.y-pc.y, p2.x-pc.x);
                 }
                 break;
-            case CIRCLE:
+            case GeneralGraph::CIRCLE:
                 line.param.circleParam.center = pointSet[i];
                 if(sscanf(input_line, "%*s%lf", &line.param.circleParam.radius) < 1)
                     continue;
@@ -142,13 +143,14 @@ bool PlainTextReader::ReadGraph()
             default:
                 break;
             }
-            graphInfo.graph->AddLine(line);
+            graph->AddLine(line);
             ++i;
         }
     }
 
     if(suc)
     {
+        graphInfo.graph = graph;
         graphSet.push_back(graphInfo);
     }
     else
@@ -159,15 +161,15 @@ bool PlainTextReader::ReadGraph()
     return suc;
 }
 
-LineType PlainTextReader::GetLineType(char typeStr[])
+GeneralGraph::LineType PlainTextReader::GetLineType(char typeStr[])
 {
     if(strcmp(typeStr, "LINE") == 0)
-        return LINE;
+        return GeneralGraph::LINE;
     if(strcmp(typeStr, "ARC") == 0)
-        return ARC;
+        return GeneralGraph::ARC;
     if(strcmp(typeStr, "CIRCLE") == 0)
-        return CIRCLE;
-    return LINE;    // default is straight line
+        return GeneralGraph::CIRCLE;
+    return GeneralGraph::LINE;    // default is straight line
 }
 
 void PlainTextReader::ReadInputLine(char line[], int len)

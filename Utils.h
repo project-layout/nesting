@@ -4,6 +4,7 @@
 #include <string>
 
 #include "GraphData.h"
+#include "GeneralGraph.h"
 
 
 Point GetCircleCenter(const Point &p1, const Point &p2, double radian, int zDir);
@@ -23,7 +24,7 @@ inline bool FloatGreater(double x, double y, double precision)
     return x - y >= precision;
 }
 
-const char *GetLineNameStr(const Line &line);
+const char *GetLineNameStr(const GeneralGraph::Line &line);
 
 std::string &LTrim(std::string &str);
 std::string &RTrim(std::string &str);

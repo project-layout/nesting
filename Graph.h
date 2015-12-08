@@ -6,23 +6,36 @@
 
 #include "GraphData.h"
 
+// Base class for all kinds of graphs
 class Graph
 {
+public:
+    enum Type
+    {
+        GENERAL,
+        RECT,
+        CIRCLE,
+        TRIANGLE,
+        ELLIPSE,
+        TRAPEZOID
+    };
+
 public:
     Graph();
     ~Graph();
 
-    int AddLine(const Line &line);
     void SetName(const char name[]) { this->name = name; }
-    int GetLineNum() const { return lineSet.size(); }
-    const Line *GetLine(int idx) const { if(idx >= 0 && idx < (int)lineSet.size()) return &lineSet[idx]; else return NULL; }
+    std::string GetName() const { return name; }
 
-    void Print();   // for test purpose
+    void SetType(Type type) { this->type = type; }
+    Type GetType() const { return this->type; }
 
 protected:
-private:
+    Type type;
     std::string name;
-    std::vector<Line> lineSet;
+
+private:
+
 };
 
 #endif // GRAPH_H

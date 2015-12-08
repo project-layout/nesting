@@ -4,7 +4,7 @@
 #include <list>
 
 #include "ILayouter.h"
-
+#include "GeneralGraph.h"
 
 class SimpleLayouter : public ILayouter
 {
@@ -16,10 +16,10 @@ public:
 
 protected:
 private:
-    void EnclosureRect(const Graph *graph, Rect *rect);
-    void EnclosureRectForLine(const Line *line, Rect *rect);
-    void EnclosureRectForArc(const Line *line, Rect *rect);
-    void EnclosureRectForCircle(const Line *line, Rect *rect);
+    void EnclosureRect(const GeneralGraph *graph, Rect *rect);
+    void EnclosureRectForLine(const GeneralGraph::Line *line, Rect *rect);
+    void EnclosureRectForArc(const GeneralGraph::Line *line, Rect *rect);
+    void EnclosureRectForCircle(const GeneralGraph::Line *line, Rect *rect);
 
     void Nest();
 

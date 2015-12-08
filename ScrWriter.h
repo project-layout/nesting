@@ -6,7 +6,7 @@
 #include <fstream>
 
 #include "IOutputWriter.h"
-#include "GraphData.h"
+#include "GeneralGraph.h"
 
 
 class ScrWriter : public IOutputWriter
@@ -21,8 +21,8 @@ public:
 protected:
 
 private:
-    void OutputScrLine(const Line &line, const Point &offset, double rot);
-    void OutputScrArc(const Line &line, const Point &offset, double rot);
+    void OutputScrLine(const GeneralGraph::Line &line, const Point &offset, double rot);
+    void OutputScrArc(const GeneralGraph::Line &line, const Point &offset, double rot);
 
 private:
     std::string outname;

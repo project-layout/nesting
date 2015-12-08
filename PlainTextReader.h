@@ -6,7 +6,7 @@
 #include <fstream>
 
 #include "IInputReader.h"
-
+#include "GeneralGraph.h"
 
 class PlainTextReader : public IInputReader
 {
@@ -19,7 +19,7 @@ public:
 protected:
 private:
     bool ReadGraph();
-    LineType GetLineType(char typeStr[]);
+    GeneralGraph::LineType GetLineType(char typeStr[]);
     void ReadInputLine(char line[], int len);
     bool IgnoredLine(char line[], int len);
 

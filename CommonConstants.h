@@ -2,5 +2,6 @@
 #define COMMONCONSTANTS_H
 
 #define EPS (1e-10)
+#define PI 3.14159265358979
 
 #endif // COMMONCONSTANTS_H

@@ -5,6 +5,7 @@
 #include <functional>
 
 #include "Utils.h"
+#include "CommonConstants.h"
 
 
 Point GetCircleCenter(const Point &p1, const Point &p2, double radian, int zDir)
@@ -64,15 +65,15 @@ Point GetCircleCenter(const Point &p1, const Point &p2, double radian, int zDir)
     return cc;
 }
 
-const char *GetLineNameStr(const Line &line)
+const char *GetLineNameStr(const GeneralGraph::Line &line)
 {
     switch(line.type)
     {
-    case LINE:
+    case GeneralGraph::LINE:
         return "LINE";
-    case ARC:
+    case GeneralGraph::ARC:
         return "ARC";
-    case CIRCLE:
+    case GeneralGraph::CIRCLE:
         return "CIRCLE";
     default:
         return "UNKNOWN";
@@ -100,7 +101,7 @@ std::string &Trim(std::string &str)
 
 char *LTrim(char *str)
 {
-    int len = strlen(str);
+    int len = (int)strlen(str);
     char *p = std::find_if(&str[0], &str[len], std::not1(std::ptr_fun<int, int>(isspace))), *q = str;
     if(p != q)
     {
@@ -113,7 +114,7 @@ char *LTrim(char *str)
 
 char *RTrim(char *str)
 {
-    int len = strlen(str);
+    int len = (int)strlen(str);
     int i = len-1;
     while(i >= 0 && isspace(str[i]))
     {
