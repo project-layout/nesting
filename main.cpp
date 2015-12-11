@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        inputReader = new DxfReader("fig3.dxf", graphSet);
+        inputReader = new DxfReader("/Users/yiyuan/Desktop/nesting/input.dxf", graphSet);
     }
 
     if(inputReader->ReadData())
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
         printf("Graph %d: (%d, %f, %f, %f)\n", i+1, result[i].board, result[i].pos.x, result[i].pos.y, result[i].angle);
     }
 
-    IOutputWriter *writer = new ScrWriter("output", result);
+    IOutputWriter *writer = new ScrWriter("/Users/yiyuan/Desktop/nesting/output", result);
     writer->SetPageSize(boardSize);
     writer->OutputFile();
 

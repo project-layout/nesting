@@ -31,7 +31,7 @@ bool ScrWriter::OutputFile()
         {
             if(fout.is_open())
             {
-                fout << "ZOOM ALL" << std::endl;
+                fout << "ZOOM ALL\r\n" << std::endl;
                 fout.close();
             }
             curFileId++;
@@ -39,7 +39,7 @@ bool ScrWriter::OutputFile()
             ss >> strFileId;
             filename = outname + strFileId + POSTFIX;
             fout.open(filename);
-            fout << "LIMITS\n" << (double)0 << "," << (double)0 << "\n" << page.x << "," << page.y << "\n\n";
+            fout << "LIMITS\r\n" << (double)0 << "," << (double)0 << "\r\n" << page.x << "," << page.y << "\r\n\r\n";
         }
 
         if(result[i].graph->GetType() == Graph::GENERAL)
@@ -67,7 +67,7 @@ bool ScrWriter::OutputFile()
 
     if(fout.is_open())
     {
-        fout << "ZOOM ALL" << std::endl;
+        fout << "ZOOM ALL\r\n" << std::endl;
         fout.close();
     }
     return true;
@@ -76,13 +76,13 @@ bool ScrWriter::OutputFile()
 void ScrWriter::OutputScrLine(const GeneralGraph::Line &line, const Point &offset, double rot)
 {
     double x, y;
-    fout << "LINE\n";
+    fout << "LINE\r\n";
     x = line.param.lineParam.ep1.x + offset.x;
     y = line.param.lineParam.ep1.y + offset.y;
-    fout << x << "," << y << "\n";
+    fout << x << "," << y << "\r\n";
     x = line.param.lineParam.ep2.x + offset.x;
     y = line.param.lineParam.ep2.y + offset.y;
-    fout << x << "," << y << "\n\n";
+    fout << x << "," << y << "\r\n\r\n";
 }
 
 
@@ -93,14 +93,14 @@ void ScrWriter::OutputScrArc(const GeneralGraph::Line &line, const Point &offset
     double startAng = line.param.arcParam.startAng;
     double endAng = line.param.arcParam.endAng;
 
-    fout << "ARC\nC\n";
+    fout << "ARC\r\nC\r\n";
     x = line.param.arcParam.center.x + offset.x;
     y = line.param.arcParam.center.y + offset.y;
-    fout << x << "," << y << "\n";
-    x = line.param.arcParam.center.x + radius * cos(endAng) + offset.x;
-    y = line.param.arcParam.center.y + radius * sin(endAng) + offset.y;
-    fout << x << "," << y << "\n";
+    fout << x << "," << y << "\r\n";
     x = line.param.arcParam.center.x + radius * cos(startAng) + offset.x;
     y = line.param.arcParam.center.y + radius * sin(startAng) + offset.y;
-    fout << x << "," << y << "\n";
+    fout << x << "," << y << "\r\n";
+    x = line.param.arcParam.center.x + radius * cos(endAng) + offset.x;
+    y = line.param.arcParam.center.y + radius * sin(endAng) + offset.y;
+    fout << x << "," << y << "\r\n";
 }
