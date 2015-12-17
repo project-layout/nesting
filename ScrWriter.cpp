@@ -75,32 +75,39 @@ bool ScrWriter::OutputFile()
 
 void ScrWriter::OutputScrLine(const GeneralGraph::Line &line, const Point &offset, double rot)
 {
-    double x, y;
+    double x, y, xr, yr;
+
     fout << "LINE\r\n";
-    x = line.param.lineParam.ep1.x + offset.x;
-    y = line.param.lineParam.ep1.y + offset.y;
-    fout << x << "," << y << "\r\n";
-    x = line.param.lineParam.ep2.x + offset.x;
-    y = line.param.lineParam.ep2.y + offset.y;
-    fout << x << "," << y << "\r\n\r\n";
+    x = line.param.lineParam.ep1.x;
+    y = line.param.lineParam.ep1.y;
+    xr = x * cos(rot) - y * sin(rot);
+    yr = y * cos(rot) + x * sin(rot);
+    fout << xr + offset.x << "," << yr + offset.y << "\r\n";
+    x = line.param.lineParam.ep2.x;
+    y = line.param.lineParam.ep2.y;
+    xr = x * cos(rot) - y * sin(rot);
+    yr = y * cos(rot) + x * sin(rot);
+    fout << xr + offset.x << "," << yr + offset.y << "\r\n\r\n";
 }
 
 
 void ScrWriter::OutputScrArc(const GeneralGraph::Line &line, const Point &offset, double rot)
 {
-    double x, y;
+    double x, y, xc, yc, xcr, ycr;
     double radius = line.param.arcParam.radius;
     double startAng = line.param.arcParam.startAng;
     double endAng = line.param.arcParam.endAng;
 
     fout << "ARC\r\nC\r\n";
-    x = line.param.arcParam.center.x + offset.x;
-    y = line.param.arcParam.center.y + offset.y;
+    xc = line.param.arcParam.center.x;
+    yc = line.param.arcParam.center.y;
+    xcr = xc * cos(rot) - yc * sin(rot);
+    ycr = yc * cos(rot) + xc * sin(rot);
+    fout << xcr + offset.x << "," << ycr + offset.y << "\r\n";
+    x = xcr + radius * cos(startAng + rot) + offset.x;
+    y = ycr + radius * sin(startAng + rot) + offset.y;
     fout << x << "," << y << "\r\n";
-    x = line.param.arcParam.center.x + radius * cos(startAng) + offset.x;
-    y = line.param.arcParam.center.y + radius * sin(startAng) + offset.y;
-    fout << x << "," << y << "\r\n";
-    x = line.param.arcParam.center.x + radius * cos(endAng) + offset.x;
-    y = line.param.arcParam.center.y + radius * sin(endAng) + offset.y;
+    x = xcr + radius * cos(endAng + rot) + offset.x;
+    y = ycr + radius * sin(endAng + rot) + offset.y;
     fout << x << "," << y << "\r\n";
 }

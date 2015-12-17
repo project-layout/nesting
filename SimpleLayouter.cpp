@@ -27,25 +27,51 @@ SimpleLayouter::~SimpleLayouter()
 bool SimpleLayouter::Solve()
 {
     int i;
+    double rot;
     Rect rect;
+
+    // Compute the bounding boxes
     unitSet.resize(graphSet.size());
     for(i = 0; i < (int)graphSet.size(); i++)
     {
         if(graphSet[i].graph->GetType() == Graph::GENERAL)
         {
-            EnclosureRect((GeneralGraph *)graphSet[i].graph, &rect);
+            unitSet[i].graphInfo = &graphSet[i];
+            unitSet[i].boundingBox.bl.x = 0;    // Initial max bounding box, larger than the board
+            unitSet[i].boundingBox.bl.y = 0;
+            unitSet[i].boundingBox.ur.x = boardSize.x + 1;
+            unitSet[i].boundingBox.ur.y = boardSize.y + 1;
+
+            for(rot = 0; FloatLess(rot, 2*PI, EPS); rot += precision)
+            {
+                BoundingBox((GeneralGraph *)graphSet[i].graph, rot, &rect);
+                if(CompareRectangleArea(rect, unitSet[i].boundingBox))
+                {
+                    unitSet[i].boundingBox = rect;
+                    unitSet[i].rotate = rot;
+                }
+            }
+
+            if(unitSet[i].boundingBox.ur.y - unitSet[i].boundingBox.bl.y > boardSize.y
+               || unitSet[i].boundingBox.ur.x - unitSet[i].boundingBox.bl.x > boardSize.x)
+            {
+                // This graph cannot be nested into the board.
+                return false;
+            }
         }
-        unitSet[i].graphInfo = &graphSet[i];
-        unitSet[i].enclosureRect = rect;
-        if(rect.ur.y-rect.bl.y > boardSize.y || rect.ur.x-rect.bl.x > boardSize.x)  // This graph cannot be nested into the board.
-            return false;
+        else
+        {
+            // TODO: Need to add supports for other type of graphs
+        }
     }
 
+    // Nest the graphs by the bounding boxes
     Nest();
+
     return true;
 }
 
-void SimpleLayouter::EnclosureRect(const GeneralGraph *graph, Rect *rect)
+void SimpleLayouter::BoundingBox(const GeneralGraph *graph, double rot, Rect *rect)
 {
     int i;
     Rect lineRect;
@@ -56,13 +82,13 @@ void SimpleLayouter::EnclosureRect(const GeneralGraph *graph, Rect *rect)
         switch(line->type)
         {
         case GeneralGraph::LINE:
-            EnclosureRectForLine(line, &lineRect);
+            BoundingBoxForLine(line, rot, &lineRect);
             break;
         case GeneralGraph::ARC:
-            EnclosureRectForArc(line, &lineRect);
+            BoundingBoxForArc(line, rot, &lineRect);
             break;
         case GeneralGraph::CIRCLE:
-            EnclosureRectForCircle(line, &lineRect);
+            BoundingBoxForCircle(line, rot, &lineRect);
             break;
         default:
             break;
@@ -78,30 +104,37 @@ void SimpleLayouter::EnclosureRect(const GeneralGraph *graph, Rect *rect)
     }
 }
 
-void SimpleLayouter::EnclosureRectForLine(const GeneralGraph::Line *line, Rect *rect)
+void SimpleLayouter::BoundingBoxForLine(const GeneralGraph::Line *line, double rot, Rect *rect)
 {
     const Point &p1 = line->param.lineParam.ep1;
     const Point &p2 = line->param.lineParam.ep2;
     double x1 = p1.x, x2 = p2.x, y1 = p1.y, y2 = p2.y;
-    rect->bl.x = x1 < x2 ? x1 : x2;
-    rect->bl.y = y1 < y2 ? y1 : y2;
-    rect->ur.x = x1 > x2 ? x1 : x2;
-    rect->ur.y = y1 > y2 ? y1 : y2;
+    double x1r = x1*cos(rot)-y1*sin(rot);
+    double y1r = y1*cos(rot)+x1*sin(rot);
+    double x2r = x2*cos(rot)-y2*sin(rot);
+    double y2r = y2*cos(rot)+x2*sin(rot);
+
+    rect->bl.x = x1r < x2r ? x1r : x2r;
+    rect->bl.y = y1r < y2r ? y1r : y2r;
+    rect->ur.x = x1r > x2r ? x1r : x2r;
+    rect->ur.y = y1r > y2r ? y1r : y2r;
 }
 
-void SimpleLayouter::EnclosureRectForArc(const GeneralGraph::Line *line, Rect *rect)
+void SimpleLayouter::BoundingBoxForArc(const GeneralGraph::Line *line, double rot, Rect *rect)
 {
     const Point &center = line->param.arcParam.center;
+    double cxr = center.x*cos(rot)-center.y*sin(rot);
+    double cyr = center.y*cos(rot)+center.x*sin(rot);
     double radius = line->param.arcParam.radius;
-    double startAng = line->param.arcParam.startAng;
-    double endAng = line->param.arcParam.endAng;
+    double startAng = line->param.arcParam.startAng+rot;
+    double endAng = line->param.arcParam.endAng+rot;
     double angle, x, y;
 
     rect->ur.x = rect->ur.y = -(rect->bl.x = rect->bl.y = DBL_MAX);
     for(angle = startAng; angle < endAng+EPS; angle += precision)
     {
-        x = center.x+radius*cos(angle);
-        y = center.y+radius*sin(angle);
+        x = cxr+radius*cos(angle);
+        y = cyr+radius*sin(angle);
         if(x > rect->ur.x)
             rect->ur.x = x;
         if(x < rect->bl.x)
@@ -113,13 +146,23 @@ void SimpleLayouter::EnclosureRectForArc(const GeneralGraph::Line *line, Rect *r
     }
 }
 
-void SimpleLayouter::EnclosureRectForCircle(const GeneralGraph::Line *line, Rect *rect)
+void SimpleLayouter::BoundingBoxForCircle(const GeneralGraph::Line *line, double rot, Rect *rect)
 {
     const Point &center = line->param.circleParam.center;
-    rect->ur.x = center.x + line->param.circleParam.radius;
-    rect->ur.y = center.y + line->param.circleParam.radius;
-    rect->bl.x = center.x - line->param.circleParam.radius;
-    rect->bl.y = center.y - line->param.circleParam.radius;
+    double cxr = center.x*cos(rot)-center.y*sin(rot);
+    double cyr = center.y*cos(rot)+center.x*sin(rot);
+
+    rect->ur.x = cxr + line->param.circleParam.radius;
+    rect->ur.y = cyr + line->param.circleParam.radius;
+    rect->bl.x = cxr - line->param.circleParam.radius;
+    rect->bl.y = cyr - line->param.circleParam.radius;
+}
+
+bool SimpleLayouter::CompareRectangleArea(const Rect &rect1, const Rect &rect2)
+{
+    double area1 = (rect1.ur.x - rect1.bl.x) * (rect1.ur.y - rect1.bl.y);
+    double area2 = (rect2.ur.x - rect2.bl.x) * (rect2.ur.y - rect2.bl.y);
+    return area1 < area2;
 }
 
 void SimpleLayouter::Nest()
@@ -145,7 +188,7 @@ void SimpleLayouter::Nest()
     curX = curY = 0;
     for(i = 0; i < (int)unitSet.size(); i++)
     {
-        Rect &rect = unitSet[i].enclosureRect;
+        Rect &rect = unitSet[i].boundingBox;
         width = rect.ur.x - rect.bl.x;
         height = rect.ur.y - rect.bl.y;
         for(j = 0; j < unitSet[i].graphInfo->num; j++)
@@ -205,7 +248,7 @@ void SimpleLayouter::Nest()
             nr.board = curBoard;
             nr.pos.x = curX - rect.bl.x;
             nr.pos.y = curY - rect.bl.y;
-            nr.angle = 0;
+            nr.angle = unitSet[i].rotate;
             result.push_back(nr);
 
             // Modify the linked list
@@ -244,7 +287,7 @@ void SimpleLayouter::Nest()
 
 bool SimpleLayouter::CompareNestingUnit(const NestingUnit &u1, const NestingUnit &u2)   // compared by height first, then width
 {
-    const Rect &r1 = u1.enclosureRect, &r2 = u2.enclosureRect;
+    const Rect &r1 = u1.boundingBox, &r2 = u2.boundingBox;
     double w1 = r1.ur.x-r1.bl.x;
     double w2 = r2.ur.x-r2.bl.x;
     double h1 = r1.ur.y-r1.bl.y;

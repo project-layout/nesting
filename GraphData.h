@@ -24,8 +24,8 @@ struct NestingResult
 {
     int board;
     Point pos;
-    double angle;
     const Graph *graph;
+    double angle;
 };
 
 #endif // GRAPHDATA_H

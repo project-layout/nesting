@@ -16,20 +16,12 @@ public:
 
 protected:
 private:
-    void EnclosureRect(const GeneralGraph *graph, Rect *rect);
-    void EnclosureRectForLine(const GeneralGraph::Line *line, Rect *rect);
-    void EnclosureRectForArc(const GeneralGraph::Line *line, Rect *rect);
-    void EnclosureRectForCircle(const GeneralGraph::Line *line, Rect *rect);
-
-    void Nest();
-
     struct NestingUnit  // Used for storing nesting information
     {
         const GraphInfo *graphInfo;
-        Rect enclosureRect;
+        double rotate;
+        Rect boundingBox;
     };
-
-    static bool CompareNestingUnit(const NestingUnit &u1, const NestingUnit &u2);
 
     struct LayoutColumn  // Column information used during nesting
     {
@@ -37,6 +29,17 @@ private:
         double right;
         double height;
     };
+
+private:
+    void BoundingBox(const GeneralGraph *graph, double rot, Rect *rect);
+    void BoundingBoxForLine(const GeneralGraph::Line *line, double rot, Rect *rect);
+    void BoundingBoxForArc(const GeneralGraph::Line *line, double rot, Rect *rect);
+    void BoundingBoxForCircle(const GeneralGraph::Line *line, double rot, Rect *rect);
+    bool CompareRectangleArea(const Rect &rect1, const Rect &rect2);
+
+    void Nest();
+
+    static bool CompareNestingUnit(const NestingUnit &u1, const NestingUnit &u2);
 
     void InitLayoutColumnList(std::list<LayoutColumn> &colList);
 
